@@ -33,4 +33,13 @@ public class BankController {
             return ResponseEntity.internalServerError().body(e.getMessage()); // 500 error code
         }
     }
+
+    @GetMapping
+    public ResponseEntity<?> getAllBanksFromDB() {
+        // get all the banks from the database
+        List<Bank> allBanks = bankRepository.findAll();
+
+        // return the list of banks to the client
+        return new ResponseEntity<>(allBanks, HttpStatus.OK);
+    }
 }
