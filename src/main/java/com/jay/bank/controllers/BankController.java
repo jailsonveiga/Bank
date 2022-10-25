@@ -42,4 +42,16 @@ public class BankController {
         // return the list of banks to the client
         return new ResponseEntity<>(allBanks, HttpStatus.OK);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getBankById(@PathVariable Long id) {
+
+        Optional<Bank> requestedBank = bankRepository.findById(id);
+
+        if (requestedBank.isEmpty()) {
+            return new ResponseEntity<>("Bank with id " + id + " not found", HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(requestedBank.get(), HttpStatus.OK);
+    }
 }
