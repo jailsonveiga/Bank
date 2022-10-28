@@ -101,5 +101,10 @@ public class BankController {
 
     }
 
+    @GetMapping("/areacode/{areacode}")
+    public ResponseEntity<?> findAllByAreaCode(@PathVariable String areacode) {
 
+        return new ResponseEntity<>(bankRepository.getAllAreaCodes(areacode), HttpStatus.OK);
+
+    }
 }
