@@ -78,5 +78,28 @@ public class BankController {
 
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteOneById(@PathVariable Long id) {
+
+        // If return is unwanted, the bellow line is negligible - deleteById only fails is void is provided and that cannot be due to path
+        Bank requestedBank = bankRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bank with id " + id + " not found"));
+
+        bankRepository.deleteById(id);
+
+        return ResponseEntity.ok(requestedBank);
+
+    }
+
+    @GetMapping("/name/{name}")
+    public ResponseEntity<?> findOneByName(@PathVariable String name) {
+
+            Bank requestedBank = bankRepository.findByName(name).orElseThrow(
+                    () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bank with name " + name + " not found")
+            );
+
+            return new ResponseEntity<>(requestedBank, HttpStatus.OK);
+
+    }
+
 
 }
