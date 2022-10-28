@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,4 +55,28 @@ public class BankController {
 
         return new ResponseEntity<>(requestedBank.get(), HttpStatus.OK);
     }
+
+    @PostMapping("/{id}")
+    public ResponseEntity<?> postOneById(@PathVariable Long id, @RequestBody Bank newBankData) {
+
+        Bank requestedBank = bankRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bank with id " + id + " not found"));
+
+        if(!newBankData.getName().equals("")) {
+
+            requestedBank.setName(newBankData.getName());
+
+        }
+
+
+        if(newBankData.getPhoneNumber() != null && newBankData.getPhoneNumber().length() >= 3) { // if the new bank data has a phone number and it's not empty
+
+            requestedBank.setPhoneNumber(newBankData.getPhoneNumber());
+
+        }
+
+        return ResponseEntity.ok(bankRepository.save(requestedBank));
+
+    }
+
+
 }
