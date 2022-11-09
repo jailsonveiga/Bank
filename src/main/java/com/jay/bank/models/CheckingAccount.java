@@ -1,15 +1,13 @@
 package com.jay.bank.models;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class CheckingAccount {
 
     @Id() // primary key
-    @GeneratedValue (strategy = GenerationType.IDENTITY) // auto increment value for primary key (id) field in database table
+    @GeneratedValue (strategy = GenerationType.SEQUENCE, generator = "accountId") // auto increment value for primary key (id) field in database table
+    @SequenceGenerator(name = "accountId", initialValue = 100)
     private Long id;
 
     private String alias;
