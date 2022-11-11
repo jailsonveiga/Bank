@@ -1,7 +1,9 @@
 package com.jay.bank.controllers;
 
 import com.jay.bank.models.CheckingAccount;
+import com.jay.bank.models.Customer;
 import com.jay.bank.repositories.CheckingAccountRepository;
+import com.jay.bank.repositories.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Set;
 
 @CrossOrigin
 @RestController
@@ -18,10 +21,25 @@ public class CheckingAccountController {
     @Autowired
     private CheckingAccountRepository checkingAccountRepository;
 
-    @PostMapping
-    public ResponseEntity<?> addOneCheckingAccountToDB(@RequestBody CheckingAccount newCheckingAccountData){
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @PostMapping("/customer/{id}")
+    public ResponseEntity<?> addOneCheckingAccountToDB(@RequestBody CheckingAccount newCheckingAccountData, @PathVariable Long id) {
+
+       // find the customer in the customer database
+        // return bad request if no customer
+        // add the customer record to the newCheckingAccountData object
+        // save it to the database
+        // return the newCheckingAccountData object
+
+        Customer customer = customerRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer not found"));
+
+        newCheckingAccountData.getCustomers().add(customer);
 
         CheckingAccount addedCheckingAccount  = checkingAccountRepository.save(newCheckingAccountData);
+
+
 
         return new ResponseEntity<>(addedCheckingAccount, HttpStatus.CREATED);
     }
@@ -33,7 +51,7 @@ public class CheckingAccountController {
         return new ResponseEntity<>(allCheckingAccounts, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/update/{id}")
     public ResponseEntity<?> getCheckingAccountById(@PathVariable Long id) {
 
         CheckingAccount requestedCheckingAccount = checkingAccountRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Checking Account not found"));
@@ -62,6 +80,29 @@ public class CheckingAccountController {
         checkingAccountRepository.delete(requestedCheckingAccount);
 
         return ResponseEntity.ok(requestedCheckingAccount);
+
+    }
+
+    @GetMapping("/bank/{id}")
+    public ResponseEntity<?> getAccountsByBankId(@PathVariable Long id) {
+
+            Set<CheckingAccount> requestedCheckingAccounts = checkingAccountRepository.findAllByCustomers_Bank_Id(id);
+
+            return new ResponseEntity<>(requestedCheckingAccounts, HttpStatus.OK);
+    }
+
+    @PutMapping("/addCustomer/{cid}/{aid}")
+    public ResponseEntity<?> addCustomerToAccount(@PathVariable Long cid, @PathVariable Long aid) {
+
+        // find
+
+        CheckingAccount requestedCheckingAccount = checkingAccountRepository.findById(aid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Checking Account not found"));
+
+        Customer requestedCustomer = customerRepository.findById(cid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
+
+        requestedCheckingAccount.getCustomers().add(requestedCustomer);
+
+        return new ResponseEntity<>(checkingAccountRepository.save(requestedCheckingAccount), HttpStatus.OK);
 
     }
 }
