@@ -2,8 +2,10 @@ package com.jay.bank.controllers;
 
 import com.jay.bank.models.Bank;
 import com.jay.bank.models.Customer;
+import com.jay.bank.models.User;
 import com.jay.bank.repositories.BankRepository;
 import com.jay.bank.repositories.CustomerRepository;
+import com.jay.bank.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,9 @@ public class CustomerController {
 
     @Autowired
     private BankRepository bankRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
 
     @PostMapping("/{bankId}")
@@ -86,6 +91,31 @@ public class CustomerController {
         List<Customer> allCustomers = customerRepository.findAllByBank_id(bankId);
 
         return new ResponseEntity<>(allCustomers, HttpStatus.OK);
+    }
+
+    @PostMapping("/{custId}/token/{loginToken}")
+    public ResponseEntity<?> addUserToCustomer(@PathVariable Long custId, @PathVariable String loginToken) {
+
+        User foundUser = userRepository.findByLoginToken(loginToken).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
+
+        Customer foundCustomer = customerRepository.findById(custId).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer not found"));
+
+        foundCustomer.setUser(foundUser);
+
+        customerRepository.save(foundCustomer);
+
+        return new ResponseEntity<>(foundCustomer, (HttpStatus.OK));
+    }
+
+    //TODO:
+    @GetMapping("/self/{loginToken}") // get customer by login token
+    public ResponseEntity<?> getCustomerByLoginToken(@PathVariable String loginToken) {
+
+        User foundUser = userRepository.findByLoginToken(loginToken).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
+
+        Customer foundCustomer = customerRepository.findByUser_username(foundUser.getUsername()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer not found"));
+
+        return new ResponseEntity<>(foundCustomer, HttpStatus.OK);
     }
 
 }
