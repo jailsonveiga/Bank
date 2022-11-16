@@ -22,6 +22,19 @@ public class Customer {
     @JsonIncludeProperties("id")
     private Bank bank;
 
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "username")
+    @JsonIncludeProperties("username")
+    private User user;
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public Bank getBank() {
         return bank;
     }
